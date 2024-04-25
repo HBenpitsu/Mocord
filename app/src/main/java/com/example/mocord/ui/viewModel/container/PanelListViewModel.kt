@@ -1,36 +1,34 @@
 package com.example.mocord.ui.viewModel.container
 
+import com.example.mocord.domain.Panel
 import com.example.mocord.domain.PanelList
 import com.example.mocord.ui.viewModel.panel.PanelViewModel
 
 class PanelListViewModel(
-    val panelList: PanelList = PanelList()
+    private val panelList: PanelList = PanelList()
 ) {
-    init {
-        panelList.loadState()
-    }
+    val existingPanelViewModels: MutableMap<Int, PanelViewModel> = mutableMapOf()
 
     val size: Int
         get() = panelList.size
 
-    fun getPanel(position: Int): PanelViewModel {
-        return panelList[position]
+    init {
+        panelList.loadState()
     }
 
-    fun addPanel(position:Int ,panel: PanelViewModel) {
-        panelList.add(position, panel)
-        onPanelAddedHandler(position)
+    fun getPanelViewModel(index: Int): PanelViewModel? {
+        val panel = panelList[index]
+
+        return if (existingPanelViewModels.keys.contains(panel.hashCode())) {
+            existingPanelViewModels[panel.hashCode()]
+        } else {
+            val viewModel = PanelViewModel(panel)
+            existingPanelViewModels[panel.hashCode()] = viewModel
+            viewModel
+        }
     }
 
-    fun removePanel(position: Int) {
-        panelList.removeAt(position)
-        onPanelRemovedHandler(position)
-    }
-
-    fun swapPanel(from: Int, to: Int) {
-        val temp = panelList[from]
-        panelList[from] = panelList[to]
-        panelList[to] = temp
-        onPanelSwappedHandler(from, to)
+    fun getPanel(index: Int): Panel{
+        return panelList[index]
     }
 }
